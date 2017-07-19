@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+body {
+	color: #DDDDDD;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	
+}
+#center {
+	position: relative;
+	background-color: #000000;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 100px;
+	padding: 0px;
+	display: block;
+	width: 800px;
+	height: 600px;
+}
+#center-textbox {
+	position: absolute;
+	margin: auto;
+	top: 0; left: 0; bottom: 0; right: 0;
+	width: 500px;
+	height: 100px;
+	line-height: 100px;
+	//background-color: #0000AA;
+	text-align: center;
+	font-size: 24px;
+}
+#stats-textbox {
+	position: absolute;
+	top: 50px;
+	left: 20px;
+	width: 200px;
+	height: 400px;
+	font-size: 12px;
+	//background-color: #660000;
+}
+#game-canvas {
+	//background-color: #00AA00;
+	width: 100%;
+	height: 100%;
+}
+
+
+</style>
+<script type="text/javascript">
+
+//Stats
+//  total hits
+//  bullseye hits
+//  average distance from center
+//  hits per second
+//  average latency
+
+
+GameState = {
+	UNINITIALIZED: 0,
+	START : 1,
+	PLAY : 2,
+	FINISH : 3
+}
+
+var center;
+var canvas;
+var center_textbox;
+var stats_textbox;
+
+var state = GameState.UNINITIALIZED;
+var clicks;
+var time_elapsed_sec;
+var last_clicked;
+
+var timeout_sec;
+
+// parameters
+var circle_size_min = 50;
+var circle_size_max = 100;
+
+
+window.onload = function() {
+	console.log("你好");
+	
+	center = document.getElementById("center");
+	canvas = document.getElementById("game-canvas");
+	center_textbox = document.getElementById("center-textbox");
+	stats_textbox = document.getElementById("stats-textbox");
+
+	center.addEventListener("mousedown",onClick);
+	doStart();
+}
+
+// state transitions
+function doStart() {
+	stats_textbox.style.display = 'none';
+	center_textbox.innerHTML="CLICK TO START";
+	state = GameState.START;
+}
+function doPlay() {
+	center_textbox.style.display = 'none';
+	stats_textbox.style.display = 'none';
+	
+	clicks = 0;
+	time_elapsed_sec = 0;
+	var last_clicked = 0;	
+	state = GameState.PLAY;
+	
+}
+function doFinish() {
+	center_textbox.style.display = 'block';
+	stats_textbox.style.display = 'block';
+	center_textbox.innerHTML="CLICK TO RETRY";
+	state = GameState.FINISH;
+}
+
+function onClick(e) {
+	console.log("some clickin", e);
+	console.log(state);
+	if (state == GameState.START || state == GameState.FINISH) {
+		doPlay()
+	}
+	else if (state == GameState.PLAY) {
+		doFinish();
+	}
+}
+
+// disable double click selection, bless stack overflow
+document.addEventListener('mousedown', function(e){ e.preventDefault(); }, false);
+
+</script>
+
+</head>
+
+<title>Invisible Cursor</title>
+<body>
+<a href="https://github.com/dstephan1/invisible-cursor">github</a>
+<div id="center">
+  <div id="stats-textbox">
+    stats
+  </div>
+  <div id="center-textbox">
+  </div>
+  <canvas id="game-canvas" width="640" height="480"></canvas>
+</div>
+</body>
+</html>
