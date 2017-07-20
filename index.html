@@ -42,8 +42,8 @@ body {
 }
 #game-canvas {
 	//background-color: #00AA00;
-	width: 100%;
-	height: 100%;
+	width: 800px;
+	height: 600px;
 }
 
 
@@ -65,19 +65,30 @@ var ctx;
 var width, height;
 
 var state = GameState.UNINITIALIZED;
-var counting_down;
-var clicks;
-var time_elapsed_sec;
-var last_clicked;
+var clicks = 0;
+var time_elapsed_sec = 0;
+
+var last_click_sec = 0;
+var last_click_x = 0;
+var last_click_y = 0;
 
 var timeout_sec;
 var prev_t_msec; // used for calculating dt, microseconds
 
 var music;
 
+Target = {
+	"x" : 0,
+	"y" : 0, 
+	"radius" : 40,
+	"fadein": 0 // TODO
+}
+var targets = [];
+
 // parameters
 var circle_size_min = 50;
 var circle_size_max = 100;
+var num_targets = 3;
 
 
 window.onload = function() {
@@ -103,6 +114,15 @@ window.onload = function() {
 	doStart();
 	frame();
 }
+function addTarget() {
+	var new_target = {};
+	new_target["x"] = Math.random()*(width-200) + 100;
+	new_target["y"] = Math.random()*(height-100) + 50;
+	new_target["radius"] = Math.random()*(circle_size_max - circle_size_min) + circle_size_min;
+	new_target["fadein"] = 0;
+	
+	targets.push(new_target);
+}
 
 // state transitions
 function doStart() {
@@ -115,11 +135,16 @@ function doPlay() {
 	stats_textbox.style.display = 'none';
 	clicks = 0;
 	time_elapsed_sec = 0;
+	last_click_sec = -10;
 	var last_clicked = 0;
 	state = GameState.PLAY;
-
+	targets = [];
+	
 	music.play();
-
+	
+	for(var i=0; i<num_targets; i++){
+		addTarget();
+	}
 }
 function doFinish() {
 	center_textbox.style.display = 'block';
@@ -138,7 +163,7 @@ function doFinish() {
 	output = {
 	"hits" : clicks,
 	"seconds elapsed" : time_elapsed_sec.toFixed(1),
-	"hits/sec" : clicks/time_elapsed_sec.toFixed(2)
+	"hits/sec" : (clicks/time_elapsed_sec).toFixed(2)
 	}
 
 	stats_textbox.innerHTML = "<p>stats</p>"
@@ -149,16 +174,52 @@ function doFinish() {
 
 function onClick(e) {
 	e.preventDefault(); // disables that double click selection thing
-	console.log("some clickin", e);
-	console.log(state);
+	//console.log("some clickin", e);
+	//console.log(state);
 	if (state == GameState.START || state == GameState.FINISH) {
-		doPlay()
+		doPlay();
 	}
 	else if (state == GameState.PLAY) {
+	
+		//console.log("mouse", e.offsetX, e.offsetY);
+
+		// scan for circle hits, oldest first
+		for (var i = 0; i < targets.length; i++) {
+			//console.log("target", i, targets[i]['x'], targets[i]['y'], targets[i]['radius']);
+			// something something when the text box captures the mouse clicks we get messed up
+			var rect = center.getBoundingClientRect();
+			offsetY = e.clientY - rect.top;
+			offsetX = e.clientX - rect.left;
+			
+			var hit = 
+				(offsetX - targets[i]['x'])**2 
+				+ (offsetY - targets[i]['y'])**2 
+				<= targets[i]['radius']**2;
+				
+			if (hit) {
+				var hitsound = new Audio('assets/hit.wav');
+				hitsound.play();
+				
+				// remove the element
+				targets.splice(i,1);
+				
+				last_click_sec = time_elapsed_sec;
+				last_click_x = offsetX;
+				last_click_y = offsetY;
+				
+				addTarget();
+				clicks++;
+				
+				return;
+			}
+		}
+	
+		// no hits
 		doFinish();
+		var misssound = new Audio('assets/miss.wav');
+		misssound.play();
+		return;
 	}
-	var clicksound = new Audio('assets/hit.wav');
-	clicksound.play();
 }
 
 function frame() {
@@ -191,6 +252,29 @@ function frame() {
 			center.style.cursor = 'none';
 		}
 
+		// draw circles, in reverse order to copy Osu!
+		// also bless stack overflow
+		for (var i = targets.length - 1; i >= 0; i--) {
+			ctx.beginPath();
+			ctx.arc(targets[i]['x'], targets[i]['y'], targets[i]['radius'], 0, 2 * Math.PI, false);
+			ctx.fillStyle = 'rgba(255, 0, 0, .8)';
+			ctx.fill();
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = '#FFFFFF';
+			ctx.stroke();
+		}
+		
+		// draw sploosh
+		if (time_elapsed_sec - last_click_sec <= .1) {
+			ctx.beginPath();
+			ctx.arc(last_click_x, last_click_y, 10, 0, 2 * Math.PI, false);
+			ctx.fillStyle = 'white';
+			ctx.fill();
+			ctx.lineWidth = 0;
+			ctx.strokeStyle = '#FFFFFF';
+			ctx.stroke();
+		}
+
 	}
 
 	window.requestAnimationFrame(frame);
@@ -212,7 +296,7 @@ function frame() {
   </div>
   <div id="center-textbox">
   </div>
-  <canvas id="game-canvas" width="640" height="480"></canvas>
+  <canvas id="game-canvas" width="800px" height="600px"></canvas>
 </div>
 </body>
 </html>
