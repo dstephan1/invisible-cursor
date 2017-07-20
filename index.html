@@ -45,6 +45,9 @@ body {
 	width: 800px;
 	height: 600px;
 }
+#music-palyer {
+	background-color: #0000AA;
+}
 
 
 </style>
@@ -115,6 +118,7 @@ window.onload = function() {
 	doStart();
 	frame();
 }
+
 function addTarget() {
 	var new_target = {};
 	new_target["x"] = Math.random()*(width-200) + 100;
@@ -130,6 +134,7 @@ function doStart() {
 	stats_textbox.style.display = 'none';
 	center_textbox.innerHTML="CLICK TO START";
 	state = GameState.START;
+	if (player && player.pauseVideo) player.pauseVideo();
 }
 function doPlay() {
 	center_textbox.style.display = 'block';
@@ -141,7 +146,10 @@ function doPlay() {
 	state = GameState.PLAY;
 	targets = [];
 	
-	music.play();
+	//music.play();
+	
+	if (player && player.playVideo) player.playVideo();
+	
 	
 	for(var i=0; i<num_targets; i++){
 		addTarget();
@@ -154,7 +162,7 @@ function doFinish() {
 	center_textbox.innerHTML="CLICK TO RETRY";
 	state = GameState.FINISH;
 
-	music.pause();
+	if (player && player.pauseVideo) player.pauseVideo();
 	//Stats
 	//  total hits
 	//  bullseye hits
@@ -283,7 +291,6 @@ function frame() {
 
 // disable double click selection, bless stack overflow
 
-
 </script>
 
 </head>
@@ -298,6 +305,47 @@ function frame() {
   <div id="center-textbox">
   </div>
   <canvas id="game-canvas" width="800px" height="600px"></canvas>
+  
+  <div id="music-player" width="640px" height="390px"></div>
+  <script>
+  
+// copy paste google's youtube api tutorial
+var tag = document.createElement('script');
+
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+var player;
+function onYouTubeIframeAPIReady() {
+  console.log("youtube state", YT);
+  player = new YT.Player('music-player', {
+    height: '390',
+    width: '640',
+	playerVars: {
+	  listType: 'playlist',
+	  list: 'RDuAjTZeZ87MQ'
+	},
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerReady(event) {
+  //event.target.playVideo();
+}
+
+// 5. The API calls this function when the player's state changes.
+//    The function indicates that when playing a video (state=1),
+//    the player should play for six seconds and then stop.
+var done = false;
+function onPlayerStateChange(event) {
+  //console.log("some state change?", event.data);
+
+}
+  </script>
 </div>
 </body>
 </html>
