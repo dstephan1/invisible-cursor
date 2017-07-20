@@ -110,6 +110,7 @@ window.onload = function() {
 
 	prev_t_msec = window.performance.now();
 	music = new Audio("assets/music.mp3");
+	music.loop = true;
 
 	doStart();
 	frame();
