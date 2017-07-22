@@ -63,12 +63,12 @@ parameters = {
 	'spawn_width' : {
 		'min' : 0,
 		'max' : 800,
-		'default' : 600
+		'default' : 640
 	},
 	'spawn_height' : {
 		'min' : 0,
 		'max' : 600,
-		'default' : 500
+		'default' : 480
 	},
 	'hint_radius' : {
 		'min' : 0,
