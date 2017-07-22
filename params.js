@@ -52,15 +52,17 @@ function paramsGenerate(parent, parameters) {
 	
 	params.Set = function(name, value) {
 		if (!(name in params)) return;
-		config = parameters[name];
+		var config = parameters[name];
 		
-		var new_value = value;
+		var new_value = parseInt(value);
 		if (value > config.max) new_value = config.max;
 		if (value < config.min) new_value = config.min;
 		
+		//console.log("set value", new_value, typeof(new_value), value);
 		current = params[name];
 		current.slider.value = new_value;
 		current.input.value = new_value;
+		current.value = new_value;
 	};
 	
 	return params;

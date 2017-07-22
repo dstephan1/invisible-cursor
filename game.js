@@ -111,8 +111,7 @@ window.onload = function() {
 	// music.loop = true;
 
 	// parameter initialization
-	//params = paramsGenerate(document.getElementById("params-box"), parameters);
-	params = paramsGenerate(document.body, parameters);
+	params = paramsGenerate(document.getElementById("params-box"), parameters);
 	//console.log("new params", params);
 	
 	doStart();
@@ -148,6 +147,9 @@ function addTarget() {
 	var spawn_height = params.spawn_height.value;
 	var circle_radius_min = params.circle_radius_min.value;
 	var circle_radius_max = params.circle_radius_max.value;
+	if (circle_radius_max < circle_radius_min) {
+		circle_radius_max = circle_radius_min;
+	}
 	
 	// how to randomly generate with respect to the center
 	new_target["x"] = Math.random()*spawn_width + (width - spawn_width)/2;

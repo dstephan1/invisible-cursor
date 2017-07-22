@@ -19,7 +19,6 @@ body {
 #center-top {
 	display: flex;
 	justify-content: center;
-	margin-bottom: 100px;
 }
 #center-textbox {
 	position: absolute;
@@ -67,8 +66,9 @@ body {
 	//width: 800px;
 	//height: 100px;
 	//background-color: #000077;
-	display: -webkit-flex;
 }
 #params-box {
 	font-size: 12px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
