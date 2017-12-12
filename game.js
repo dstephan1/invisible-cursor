@@ -22,6 +22,8 @@ var last_click_sec = 0;
 var last_click_x = 0;
 var last_click_y = 0;
 
+var high_score = 0;
+
 var timeout_sec;
 var prev_t_msec; // used for calculating dt, microseconds
 
@@ -173,6 +175,7 @@ function updateStats2() {
 	//  hits per second
 	//  average latency
 	output = {
+	"high score" : high_score,
 	"hits" : clicks,
 	"seconds elapsed" : time_elapsed_sec.toFixed(1),
 	"hits/sec" : (clicks/time_elapsed_sec).toFixed(2)
@@ -257,6 +260,7 @@ function onClick(e) {
 				
 				addTarget();
 				clicks++;
+				if (clicks > high_score) high_score = clicks;
 				updateStats1();
 				return;
 			}
